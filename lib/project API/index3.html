@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recette</title>
+    <link rel="stylesheet" href="style3.css">
+</head>
+
+<body id="page3">
+
+    <div class="nav-bar">
+        <a class="titre-nav" href="index2.html"><h2>Les muscat</h2></a>
+        <ul>
+            <a href="index.html">
+                <li>Recette</li>
+            </a>
+        </ul>
+    </div>
+
+    <div class="content">
+        <div id="recipesContainer"></div>
+
+        <div id="recipeDetailsModal" class="hidden">
+            <div class="recipe-modal">
+                <div class="modal-header">
+                    <h2 id="recipeTitle" class="modal-title"></h2>
+                </div>
+                <div class="img-recette">
+                    <img id="recipeImage" class="recipe-image" alt=""></div>
+                <div class="modal-body">
+                    <h3 class="modal-subtitle">Ingredients</h3>
+                    <ul id="recipeIngredients" class="recipe-ingredients"></ul>
+                    <h3 class="modal-subtitle">Instructions</h3>
+                    <p id="recipeInstructions" class="recipe-instructions"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="randomButtonContainer">
+        <button id="randomMealButton">Changer de recette</button>
+    </div>
+
+    <script>
+
+        window.addEventListener("DOMContentLoaded", async () => {
+            const recipeDetailsModal = document.getElementById("recipeDetailsModal");
+            const recipeTitle = document.getElementById("recipeTitle");
+            const recipeImage = document.getElementById("recipeImage");
+            const recipeIngredients = document.getElementById("recipeIngredients");
+            const recipeInstructions = document.getElementById("recipeInstructions");
+            const closeButton = document.getElementById("closeButton");
+            const randomMealButton = document.getElementById("randomMealButton");
+
+            randomMealButton.addEventListener('click', async () => {
+                try {
+                    const response = await fetch('https://www.themealdb.com/api/json/v1/1/random.php');
+                    const data = await response.json();
+                    const randomMeal = data.meals[0];
+                    if (randomMeal) {
+                        recipeTitle.textContent = randomMeal.strMeal;
+                        recipeImage.src = randomMeal.strMealThumb;
+                        recipeImage.alt = randomMeal.strMeal;
+
+                        recipeIngredients.innerHTML = "";
+                        for (let i = 1; i <= 20; i++) {
+                            const ingredient = randomMeal[`strIngredient${i}`];
+                            const measure = randomMeal[`strMeasure${i}`];
+                            if (ingredient && measure) {
+                                const listItem = document.createElement('li');
+                                listItem.textContent = `${ingredient} - ${measure}`;
+                                recipeIngredients.appendChild(listItem);
+                            }
+                        }
+
+                        recipeInstructions.innerHTML = randomMeal.strInstructions.replace(/[\r\n]+/g, '<br><br>');
+
+                        recipeDetailsModal.classList.remove('hidden');
+                    } else {
+                        console.error("Aucune recette trouvée");
+                    }
+                } catch (error) {
+                    console.error("Une erreur s'est produite lors de la récupération de la recette aléatoire :", error);
+                }
+            });
+        });
+    </script>
+
+</body>
+
+</html>
